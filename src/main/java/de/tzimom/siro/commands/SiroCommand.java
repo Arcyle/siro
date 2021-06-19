@@ -6,20 +6,13 @@ import de.tzimom.siro.managers.SpawnPointManager;
 import de.tzimom.siro.utils.CustomPlayer;
 import de.tzimom.siro.utils.Permission;
 import de.tzimom.siro.utils.Usage;
-import net.minecraft.server.v1_8_R1.EnumParticle;
-import net.minecraft.server.v1_8_R1.PacketPlayOutWorldParticles;
 import org.bukkit.Bukkit;
-import org.bukkit.Effect;
-import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
@@ -56,7 +49,6 @@ public class SiroCommand implements CommandExecutor {
 
             final Player player = (Player) sender;
             final Location location = player.getLocation();
-            final Block block = location.getBlock();
             final SpawnPointManager spawnPointManager = gameManager.getSpawnPointManager();
 
             if (spawnPointManager.addSpawn(location))

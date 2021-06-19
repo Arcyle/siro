@@ -7,9 +7,9 @@ public class Team {
     public static final byte MAX_NAME_LENGTH = 20;
 
     private String teamName;
-    private UUID[] members;
+    private CustomPlayer[] members;
 
-    public Team(String teamName, UUID[] members) {
+    public Team(String teamName, CustomPlayer[] members) {
         this.teamName = teamName;
         this.members = members;
     }
@@ -22,7 +22,7 @@ public class Team {
         this.teamName = teamName;
     }
 
-    public UUID[] getMembers() {
+    public CustomPlayer[] getMembers() {
         return members;
     }
 

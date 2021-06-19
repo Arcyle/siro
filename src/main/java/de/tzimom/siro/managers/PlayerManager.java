@@ -1,13 +1,10 @@
 package de.tzimom.siro.managers;
 
-import de.tzimom.siro.Main;
 import de.tzimom.siro.utils.CustomPlayer;
 
 import java.util.UUID;
 
 public class PlayerManager extends FileManager {
-
-    private final Main plugin = Main.getInstance();
 
     public PlayerManager() {
         if (!getConfig().contains("players"))
@@ -16,12 +13,11 @@ public class PlayerManager extends FileManager {
         if (!getConfig().isConfigurationSection("players"))
             return;
 
-        getConfig().getConfigurationSection("players").getKeys(false).forEach(uuidString -> {
+        getConfig().getConfigurationSection("players").getKeys(false).forEach(key -> {
             try {
-                String prefix = "players." + uuidString + ".";
+                String prefix = "players." + key + ".";
 
-                UUID uuid = UUID.fromString(uuidString);
-                CustomPlayer customPlayer = CustomPlayer.getPlayer(uuid);
+                CustomPlayer customPlayer = CustomPlayer.fromKey(key);
 
                 getConfig().getConfigurationSection(prefix + "playTimes").getKeys(false).forEach(dayString -> {
                     Long day = Long.parseLong(dayString);
@@ -38,13 +34,13 @@ public class PlayerManager extends FileManager {
     protected void saveConfig() {
         getConfig().set("players", null);
 
-        CustomPlayer.getCustomPlayers().forEach((uuid, customPlayer) -> {
-            String uuidString = uuid.toString();
-            String prefix = "players." + uuidString + ".";
+        CustomPlayer.getCustomPlayers().forEach((customPlayer) -> {
+            String prefix = "players." + customPlayer.asKey() + ".";
 
             customPlayer.getPlayTimes().forEach((day, playTime) -> getConfig().set(prefix + "playTimes." + day, playTime));
             getConfig().set(prefix + "nextDay", customPlayer.isNextDay());
             getConfig().set(prefix + "banned", customPlayer.isBanned());
+            getConfig().set(prefix + "name", customPlayer.getName());
         });
 
         super.saveConfig();

@@ -22,8 +22,8 @@ public class GameManager extends FileManager {
     private final Main plugin = Main.getInstance();
     private boolean running = false;
 
-    private final TeamManager teamManager = new TeamManager();
     private final PlayerManager playerManager = new PlayerManager();
+    private final TeamManager teamManager = new TeamManager();
     private final BorderManager borderManager = new BorderManager();
     private final SpawnPointManager spawnPointManager = new SpawnPointManager();
     private final CountDown countDown = new CountDown();
@@ -76,53 +76,12 @@ public class GameManager extends FileManager {
             if (spawnsSorted.isEmpty())
                 break;
 
-            Location spawn = null;
-
             System.out.println("Team: " + team.getTeamName());
-            for (UUID uuid : team.getMembers()) {
-                if (uuid == null)
+            for (CustomPlayer customPlayer : team.getMembers()) {
+                if (customPlayer == null)
                     continue;
 
-                final Player player = Bukkit.getPlayer(uuid);
-
-                if (player == null)
-                    continue;
-
-                System.out.println("Team: " + team.getTeamName() + " " + player.getName());
-
-                if (spawn == null) {
-                    System.out.println("Team: " + team.getTeamName() + " " + " " + player.getName() + " a");
-                    spawn = spawnsSorted.get(0);
-                    player.teleport(spawn);
-                    spawnsSorted.remove(spawn);
-                } else {
-                    Location nearest = null;
-                    int nearestDistanceSquared = 0;
-                    System.out.println("Team: " + team.getTeamName() + " " + player.getName() + " b");
-
-                    for (Location current : spawnsSorted) {
-                        int distanceX = current.getBlockX() - spawn.getBlockX();
-                        int distanceZ = current.getBlockZ() - spawn.getBlockZ();
-
-                        int currentNearestDistanceSquared = distanceX * distanceX + distanceZ * distanceZ;
-
-                        System.out.println("Team: " + team.getTeamName() + " " + player.getName() + " " + currentNearestDistanceSquared);
-                        System.out.println("Team: " + team.getTeamName() + " " + player.getName() + " " +
-                                spawn.getBlockX() + " " + spawn.getBlockY() + " " + spawn.getBlockZ() + " " +
-                                current.getBlockX() + " " + current.getBlockY() + " " + current.getBlockZ());
-                        if (nearest == null || currentNearestDistanceSquared < nearestDistanceSquared) {
-                            System.out.println("Team: " + team.getTeamName() + " " + player.getName() + " " + currentNearestDistanceSquared + "a");
-                            nearest = current;
-                            nearestDistanceSquared = currentNearestDistanceSquared;
-                        }
-                    }
-
-                    if (nearest == null)
-                        continue;
-
-                    player.teleport(nearest);
-                    spawnsSorted.remove(nearest);
-                }
+                System.out.println("Team: " + team.getTeamName() + " " + customPlayer.getName());
             }
         }
 
@@ -145,7 +104,7 @@ public class GameManager extends FileManager {
     }
 
     private void startGame() {
-        CustomPlayer.getCustomPlayers().forEach((uuid, player) -> {
+        CustomPlayer.getCustomPlayers().forEach(player -> {
             player.reset();
             player.onPreLogin(false);
             player.playSound(Sound.LEVEL_UP);
@@ -153,7 +112,7 @@ public class GameManager extends FileManager {
 
         running = true;
 
-        CustomPlayer.getCustomPlayers().forEach((uuid, player) -> {
+        CustomPlayer.getCustomPlayers().forEach(player -> {
             player.prepare();
             player.onJoin();
         });
@@ -167,7 +126,7 @@ public class GameManager extends FileManager {
             running = false;
             borderManager.cancel();
 
-            CustomPlayer.getCustomPlayers().forEach((uuid, player) -> {
+            CustomPlayer.getCustomPlayers().forEach(player -> {
                 player.reset();
                 player.prepare();
             });
@@ -177,7 +136,7 @@ public class GameManager extends FileManager {
         }
 
         if (countDown.running) {
-            CustomPlayer.getCustomPlayers().forEach((uuid, player) -> {
+            CustomPlayer.getCustomPlayers().forEach(player -> {
                 player.reset();
                 player.prepare();
                 player.playSound(Sound.NOTE_BASS);
@@ -213,9 +172,8 @@ public class GameManager extends FileManager {
         Set<CustomPlayer> players = new HashSet<>();
 
         teamManager.getTeams().forEach(team -> {
-            for (UUID member : team.getMembers()) {
-                if (member != null)
-                    players.add(CustomPlayer.getPlayer(member));
+            for (CustomPlayer member : team.getMembers()) {
+                if (member != null) players.add(member);
             }
         });
 

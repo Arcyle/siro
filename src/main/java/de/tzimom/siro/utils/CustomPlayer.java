@@ -5,20 +5,19 @@ import de.tzimom.siro.managers.GameManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class CustomPlayer {
 
-    private static final Map<UUID, CustomPlayer> CUSTOM_PLAYERS = new HashMap<>();
+    private static final List<CustomPlayer> CUSTOM_PLAYERS = new ArrayList<>();
 
     private static final int PROTECTION_TIME = 10;
     private static final int PLAY_TIME = 60 * 20;
     private static final int MAX_COMBAT_DISTANCE = 25;
 
     private final Main plugin = Main.getInstance();
-    private final UUID uuid;
+    private UUID uuid;
+    private String name;
 
     private final Map<Long, Long> playTimes = new HashMap<>();
     private long joinTimestamp;
@@ -30,21 +29,57 @@ public class CustomPlayer {
     private UUID combat;
 
     public static CustomPlayer getPlayer(UUID uuid) {
-        if (!CUSTOM_PLAYERS.containsKey(uuid))
-            CUSTOM_PLAYERS.put(uuid, new CustomPlayer(uuid));
+        for (CustomPlayer customPlayer : CUSTOM_PLAYERS) {
+            if (customPlayer.uuid != null && customPlayer.uuid.equals(uuid))
+                return customPlayer;
+        }
 
-        return CUSTOM_PLAYERS.get(uuid);
+        return new CustomPlayer(uuid);
+    }
+
+    public static CustomPlayer getPlayer(String name) {
+        for (CustomPlayer customPlayer : CUSTOM_PLAYERS) {
+            if (customPlayer.name != null && customPlayer.name.equalsIgnoreCase(name))
+                return customPlayer;
+        }
+
+        return new CustomPlayer(name);
+    }
+
+    public static CustomPlayer fromKey(String key) {
+        try {
+            return getPlayer(UUID.fromString(key));
+        } catch (IllegalArgumentException ignored) {
+            return getPlayer(key);
+        }
     }
 
     private CustomPlayer(UUID uuid) {
+        CUSTOM_PLAYERS.add(this);
+
         this.uuid = uuid;
+        getPlayer();
+    }
+
+    private CustomPlayer(String name) {
+        CUSTOM_PLAYERS.add(this);
+
+        this.name = name;
+        getPlayer();
+    }
+
+    public String asKey() {
+        return uuid == null ? name : uuid.toString();
     }
 
     private Player getPlayer() {
-        Player player = Bukkit.getPlayer(uuid);
+        Player player = uuid == null ? Bukkit.getPlayer(name) : Bukkit.getPlayer(uuid);
 
         if (player == null || !player.isOnline())
             return null;
+
+        uuid = player.getUniqueId();
+        name = player.getName();
 
         return player;
     }
@@ -251,6 +286,14 @@ public class CustomPlayer {
         player.playSound(player.getLocation(), sound, 1f, 1f);
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public boolean isBanned() {
         return banned;
     }
@@ -271,7 +314,7 @@ public class CustomPlayer {
         return nextDay;
     }
 
-    public static Map<UUID, CustomPlayer> getCustomPlayers() {
+    public static List<CustomPlayer> getCustomPlayers() {
         return CUSTOM_PLAYERS;
     }
 

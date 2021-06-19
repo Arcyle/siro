@@ -35,20 +35,13 @@ public class TeamCommand implements CommandExecutor {
                 return true;
             }
 
-            UUID[] members = new UUID[membersStrings.length];
+            CustomPlayer[] members = new CustomPlayer[membersStrings.length];
 
             for (int i = 0; i < membersStrings.length; i++) {
                 if (membersStrings[i] == null || membersStrings[i].isEmpty())
                     continue;
 
-                Player player = Bukkit.getPlayer(membersStrings[i]);
-
-                if (player == null) {
-                    sender.sendMessage(plugin.prefix + "§cDer Spieler " + membersStrings[i] + " ist nicht online");
-                    return true;
-                }
-
-                CustomPlayer customPlayer = CustomPlayer.getPlayer(player.getUniqueId());
+                CustomPlayer customPlayer = CustomPlayer.getPlayer(membersStrings[i]);
 
                 if (plugin.getGameManager().getTeamManager().getTeam(teamName) != null) {
                     sender.sendMessage(plugin.prefix + "§cDas Team existiert bereits");
@@ -56,12 +49,12 @@ public class TeamCommand implements CommandExecutor {
                 }
 
                 if (customPlayer.getTeam() != null) {
-                    sender.sendMessage(plugin.prefix + "§cDer Spieler " + player.getName() + " ist bereits in einem Team: "
+                    sender.sendMessage(plugin.prefix + "§cDer Spieler " + customPlayer.getName() + " ist bereits in einem Team: "
                             + customPlayer.getTeam().getTeamName());
                     return true;
                 }
 
-                members[i] = player.getUniqueId();
+                members[i] = customPlayer;
             }
 
             if (members[0] == members[1])

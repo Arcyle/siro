@@ -18,15 +18,14 @@ public class TeamManager extends FileManager {
 
         getConfig().getConfigurationSection("teams").getKeys(false).forEach(teamName -> {
             List<String> membersStrings = getConfig().getStringList("teams." + teamName);
-            UUID[] members = new UUID[membersStrings.size()];
+            CustomPlayer[] members = new CustomPlayer[membersStrings.size()];
             Team team = new Team(teamName, members);
 
             for (int i = 0; i < membersStrings.size(); i++) {
-                UUID uuid = UUID.fromString(membersStrings.get(i));
+                CustomPlayer customPlayer = CustomPlayer.fromKey(membersStrings.get(i));
+                customPlayer.setTeam(team);
 
-                CustomPlayer.getPlayer(uuid).setTeam(team);
-
-                members[i] = uuid;
+                members[i] = customPlayer;
             }
 
             teams.add(team);
@@ -39,9 +38,8 @@ public class TeamManager extends FileManager {
         teams.forEach(team -> {
             List<String> stringList = new ArrayList<>();
 
-            for (UUID member : team.getMembers()) {
-                if (member != null)
-                    stringList.add(member.toString());
+            for (CustomPlayer member : team.getMembers()) {
+                if (member != null) stringList.add(member.asKey());
             }
 
             getConfig().set("teams." + team.getTeamName(), stringList);
@@ -53,18 +51,16 @@ public class TeamManager extends FileManager {
     public void registerTeam(Team team) {
         teams.add(team);
 
-        for (UUID member : team.getMembers()) {
-            if (member != null)
-                CustomPlayer.getPlayer(member).setTeam(team);
+        for (CustomPlayer member : team.getMembers()) {
+            if (member != null) member.setTeam(team);
         }
     }
 
     public void deleteTeam(Team team) {
         teams.remove(team);
 
-        for (UUID member : team.getMembers())
-            if (member != null)
-                CustomPlayer.getPlayer(member).setTeam(null);
+        for (CustomPlayer member : team.getMembers())
+            if (member != null) member.setTeam(null);
     }
 
     public Team getTeam(String teamName) {

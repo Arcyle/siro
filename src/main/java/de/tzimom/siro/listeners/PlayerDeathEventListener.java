@@ -29,9 +29,9 @@ public class PlayerDeathEventListener implements Listener {
         for (Team team : plugin.getGameManager().getTeamManager().getTeams()) {
             boolean multipleTeams = false;
 
-            for (UUID member : team.getMembers()) {
+            for (CustomPlayer member : team.getMembers()) {
                 if (member == null) continue;
-                if (CustomPlayer.getPlayer(member).isBanned()) continue;
+                if (member.isBanned()) continue;
 
                 if (winnerTeam != null) {
                     multipleTeams = true;
